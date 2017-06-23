@@ -17,7 +17,56 @@ str(xls_files)
 # try reading 1st xls file
 xls_files[1]
 install.packages("readxl")
-read_excel(xls_files[1])
+library(readxl)
+
+read_excel("12_CPVCIN_2G_T1.XLS")
+read_xls("12_CPVCIN_2G_T1.XLS")
+# doesn't think it's an excel file.
+# opening in localc and saving as xls or xlsx 
+# then it can read them.
+read_excel("12_CPVCIN_2G_T1.2.xls")
+read_excel("12_CPVCIN_2G_T1.2.xlsx")
+
+# try gdata
+install.packages("gdata")
+library(gdata)
+read.xls("12_CPVCIN_2G_T1.XLS", verbose = TRUE)
+# uses perl. perl choked on it.
+
+# try XLConnect
+# needs rJava
+install.packages("rJava")
+library(rJava)
+
+# configure: error: Cannot compile a simple JNI program. See config.log for details.
+# 
+# Make sure you have Java Development Kit installed and correctly registered in R.
+# If in doubt, re-run "R CMD javareconf" as root.
+
+# sudo R CMD javareconf
+# conftest.c:1:17: fatal error: jni.h: No such file or directory
+# compilation terminated.
+ 
+# use Synaptic to install r-cran-rjava
+library(rJava)
+
+install.packages("XLConnect")
+# * installing *source* package ‘XLConnectJars’ ...
+
+# ** testing if installed package can be loaded
+# Segmentation fault (core dumped)
+# ERROR: loading failed
+
+# try xlsReadWrite
+install.packages("xlsReadWrite")
+# Warning in install.packages :
+#   package ‘xlsReadWrite’ is not available (for R version 3.4.0)
+
+
+
+
+#======
+
 
 
 load(file=paste0(wd_data,"DT.Rdata"))
