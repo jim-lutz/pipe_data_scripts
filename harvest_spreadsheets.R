@@ -62,7 +62,35 @@ install.packages("xlsReadWrite")
 # Warning in install.packages :
 #   package ‘xlsReadWrite’ is not available (for R version 3.4.0)
 
+# try gnumeric
+install.packages("gnumeric")
+library(gnumeric)
+read.gnumeric.sheet("12_CPVCIN_2G_T1.XLS",head = TRUE, quiet = FALSE)
+  # LANG=C /usr/bin/ssconvert --export-type=Gnumeric_stf:stf_assistant  -O "locale=C format=automatic separator=, eol=unix sheet='Sheet1'" "12_CPVCIN_2G_T1.XLS" fd://1  
+  # Unknown BIFF type in BOF 9
+  # Unknown BOF (6)
+  # Loading file:///home/jiml/HotWaterResearch/projects/Pipe%20Test%20Data/pipe_data_scripts/12_CPVCIN_2G_T1.XLS failed
+  # Error in read.table(file = file, header = header, sep = sep, quote = quote,  : 
+  #                       no lines available in input
 
+# from https://msdn.microsoft.com/en-us/library/dd906793(v=office.12).aspx
+# the first 2 bytes must bee
+# An unsigned integer that specifies the BIFF version of the file. The value MUST be 0x0600. 
+# used wxHexEditor to look at it. 1st 2 bytes were 09 00
+# test changing 1st 2 bytes to 06 00
+read.gnumeric.sheet("12_CPVCIN_2G_T1.3.XLS",head = TRUE, quiet = FALSE)
+  # E Unsupported file format.
+  # Error in read.table(file = file, header = header, sep = sep, quote = quote,  : 
+  #   no lines available in input
+# that didn't work
+
+# tried ssconvert from gnumeric with various importers but couldn't get it to work
+# see if localc has command line macros, since it can open the files.
+
+# see soffice --help 
+# looks like 
+#   soffice --headless --convert-to csv 12_CPVCIN_2G_T1.XLS 
+# does the trick!
 
 
 #======
