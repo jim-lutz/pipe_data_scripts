@@ -15,93 +15,14 @@ xls_files <- list.files(path = wd_data, pattern = ".+.xls",
 str(xls_files)
 # 387 files
 
-# try reading 1st xls file
+# try converting 1st xls file
 xls_files[1]
-install.packages("readxl")
-library(readxl)
 
-list.files()
+# a system call
+syscommand <- paste0("unoconv --format csv '",xls_files[1],"'")
+system2(syscommand)
 
-# try sample file
-read_excel("12_CPVCIN_2G_T1.XLS")
-# Not an excel file
-# Error in read_fun(path = path, sheet = sheet, limits = limits, shim = shim,  : 
-#   Failed to open 12_CPVCIN_2G_T1.XLS
-                  
-read_xls("12_CPVCIN_2G_T1.XLS")
-# Not an excel file
-# Error in read_fun(path = path, sheet = sheet, limits = limits, shim = shim,  : 
-#   Failed to open 12_CPVCIN_2G_T1.XLS
-
-# however libreoffice calc can open the file.
-
-# try gdata
-install.packages("gdata")
-library(gdata)
-read.xls("12_CPVCIN_2G_T1.XLS", verbose = TRUE)
-# uses perl. perl choked on it.
-
-# try XLConnect
-# needs rJava
-install.packages("rJava")
-library(rJava)
-
-# configure: error: Cannot compile a simple JNI program. See config.log for details.
-# 
-# Make sure you have Java Development Kit installed and correctly registered in R.
-# If in doubt, re-run "R CMD javareconf" as root.
-
-# sudo R CMD javareconf
-# conftest.c:1:17: fatal error: jni.h: No such file or directory
-# compilation terminated.
- 
-# use Synaptic to install r-cran-rjava
-library(rJava)
-
-install.packages("XLConnect")
-# * installing *source* package ‘XLConnectJars’ ...
-
-# ** testing if installed package can be loaded
-# Segmentation fault (core dumped)
-# ERROR: loading failed
-
-# try xlsReadWrite
-install.packages("xlsReadWrite")
-# Warning in install.packages :
-#   package ‘xlsReadWrite’ is not available (for R version 3.4.0)
-
-# try gnumeric
-install.packages("gnumeric")
-library(gnumeric)
-read.gnumeric.sheet("12_CPVCIN_2G_T1.XLS",head = TRUE, quiet = FALSE)
-  # LANG=C /usr/bin/ssconvert --export-type=Gnumeric_stf:stf_assistant  -O "locale=C format=automatic separator=, eol=unix sheet='Sheet1'" "12_CPVCIN_2G_T1.XLS" fd://1  
-  # Unknown BIFF type in BOF 9
-  # Unknown BOF (6)
-  # Loading file:///home/jiml/HotWaterResearch/projects/Pipe%20Test%20Data/pipe_data_scripts/12_CPVCIN_2G_T1.XLS failed
-  # Error in read.table(file = file, header = header, sep = sep, quote = quote,  : 
-  #                       no lines available in input
-
-# from https://msdn.microsoft.com/en-us/library/dd906793(v=office.12).aspx
-# the first 2 bytes must bee
-# An unsigned integer that specifies the BIFF version of the file. The value MUST be 0x0600. 
-# used wxHexEditor to look at it. 1st 2 bytes were 09 00
-# test changing 1st 2 bytes to 06 00
-read.gnumeric.sheet("12_CPVCIN_2G_T1.3.XLS",head = TRUE, quiet = FALSE)
-  # E Unsupported file format.
-  # Error in read.table(file = file, header = header, sep = sep, quote = quote,  : 
-  #   no lines available in input
-# that didn't work
-
-# tried ssconvert from gnumeric with various importers but couldn't get it to work
-# see if localc has command line macros, since it can open the files.
-
-# see soffice --help 
-# looks like 
-#   soffice --headless --convert-to csv 12_CPVCIN_2G_T1.XLS 
-# does the trick!
-# not anymore?
-
-# was able to get it wiht unoconv
+# was able to convert it with unoconv
 # with some problem on first try.
 # $ unoconv --format csv 12_CPVCIN_2G_T1.XLS 
 # Error: Unable to connect or start own listener. Aborting.
