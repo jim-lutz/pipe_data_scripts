@@ -13,19 +13,27 @@ xls_files <- list.files(path = wd_data, pattern = ".+.xls",
                         full.names = TRUE, recursive = TRUE,
                         ignore.case = TRUE)
 str(xls_files)
+# 387 files
 
 # try reading 1st xls file
 xls_files[1]
 install.packages("readxl")
 library(readxl)
 
+list.files()
+
+# try sample file
 read_excel("12_CPVCIN_2G_T1.XLS")
+# Not an excel file
+# Error in read_fun(path = path, sheet = sheet, limits = limits, shim = shim,  : 
+#   Failed to open 12_CPVCIN_2G_T1.XLS
+                  
 read_xls("12_CPVCIN_2G_T1.XLS")
-# doesn't think it's an excel file.
-# opening in localc and saving as xls or xlsx 
-# then it can read them.
-read_excel("12_CPVCIN_2G_T1.2.xls")
-read_excel("12_CPVCIN_2G_T1.2.xlsx")
+# Not an excel file
+# Error in read_fun(path = path, sheet = sheet, limits = limits, shim = shim,  : 
+#   Failed to open 12_CPVCIN_2G_T1.XLS
+
+# however libreoffice calc can open the file.
 
 # try gdata
 install.packages("gdata")
@@ -91,6 +99,23 @@ read.gnumeric.sheet("12_CPVCIN_2G_T1.3.XLS",head = TRUE, quiet = FALSE)
 # looks like 
 #   soffice --headless --convert-to csv 12_CPVCIN_2G_T1.XLS 
 # does the trick!
+# not anymore?
+
+# was able to get it wiht unoconv
+# with some problem on first try.
+# $ unoconv --format csv 12_CPVCIN_2G_T1.XLS 
+# Error: Unable to connect or start own listener. Aborting.
+# $ unoconv --version
+# unoconv 0.7
+# Written by Dag Wieers <dag@wieers.com>
+# Homepage at http://dag.wieers.com/home-made/unoconv/
+#   
+#   platform posix/linux
+# python 3.5.2 (default, Nov 17 2016, 17:05:23) 
+# [GCC 5.4.0 20160609]
+# LibreOffice 5.1.6.2
+# $ unoconv --format csv 12_CPVCIN_2G_T1.XLS 
+# $ 
 
 
 #======

@@ -30,9 +30,10 @@ update.packages(checkBuilt=TRUE)
 
 
 sessionInfo() 
-# R version 3.4.0 (2017-04-21)
-# Platform: i686-pc-linux-gnu (32-bit)
-# Running under: Ubuntu 16.04.2 LTS
+  # R version 3.4.1 (2017-06-30)
+  # Platform: i686-pc-linux-gnu (32-bit)
+  # Running under: Ubuntu 16.04.2 LTS
+
 
 # work with tidyverse
 # http://tidyverse.org/
