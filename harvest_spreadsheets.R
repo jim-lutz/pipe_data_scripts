@@ -18,8 +18,10 @@ str(xls_files)
 # try converting 1st xls file
 xls_files[1]
 
-# a system call
-syscommand <- paste0("unoconv --format csv '",xls_files[1],"'")
+# try a system call on a test file in the working directory
+syscommand <- paste0("/opt/libreoffice5.3/program/soffice.bin --convert-to csv /home/jiml/HotWaterResearch/projects/Pipe Test Data/pipe_data_scripts/12_CPVCIN_2G_T1.XLS")
+syscommand <- paste0("/opt/libreoffice5.3/program/soffice.bin --convert-to csv 12_CPVCIN_2G_T1.XLS")
+
 system2(syscommand)
 
 # was able to convert it with unoconv
