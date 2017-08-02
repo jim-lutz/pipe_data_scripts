@@ -10,10 +10,9 @@ source("setup_wd.R")
 
 # get a list of all the xls files in the wd_data subdirectories
 xls_files <- list.files(path = wd_data, pattern = ".+.XLS$", 
-                        full.names = TRUE, recursive = TRUE,
-                        ignore.case = TRUE)
+                        full.names = TRUE, recursive = TRUE)
 str(xls_files)
-# 329 files
+# 328 files
 
 # split path and file name 
 path <- dirname(xls_files)
@@ -24,10 +23,28 @@ length(path)
 head(filename)
 length(filename)
 
-DT_fn <- data.table(path,filename)
+# get the file modification date
+filedate <- file.mtime(xls_files)
+
+DT_fn <- data.table(path,filename,filedate)
 
 # drop '/home/jiml/HotWaterResearch/projects/Pipe Test Data' from path names
 DT_fn[,path:= str_replace(path, "/home/jiml/HotWaterResearch/projects/Pipe Test Data", ".")]
+
+# parse file names into fields
+# only parse filenames that begin with DD_
+
+# nominal pipe diameter
+DT_fn[str_detect(filename, "^[0-9][0-9]_"), nom_diam:=str_extract(filename, "^(..)")]
+unique(DT_fn$nom_diam)
+DT_fn[nom_diam=="14", nom_diam:="1/4"]
+DT_fn[nom_diam=="38", nom_diam:="3/8"]
+DT_fn[nom_diam=="12", nom_diam:="1/2"]
+DT_fn[nom_diam=="34", nom_diam:="3/4"]
+
+
+
+str(DT_fn)
 
 write.csv(DT_fn, file="list_of_XLS.csv", row.names = FALSE)
 
