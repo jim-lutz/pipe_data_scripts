@@ -41,13 +41,39 @@ DT_fn[nom_diam=="14", nom_diam:="1/4"]
 DT_fn[nom_diam=="38", nom_diam:="3/8"]
 DT_fn[nom_diam=="12", nom_diam:="1/2"]
 DT_fn[nom_diam=="34", nom_diam:="3/4"]
+unique(DT_fn$nom_diam)
+# [1] "1/2" "3/4" NA    "1/4" "3/8"
 
 # T? test?
 DT_fn[str_detect(filename, "^[0-9][0-9]_"), Test:=str_match(filename, "_(T.*).XLS")[,2] ]
+unique(DT_fn$Test)
+# [1] "T1"   "T2"   NA     "TBAD" "T3"   "T1Z"  "T2Z" 
 
+# rest of stuff between nom_diam & Test
+DT_fn[str_detect(filename, "^[0-9][0-9]_"), remaining:=str_match(filename, "^[0-9][0-9]_(.*)_T.*.XLS")[,2] ]
+sort(unique(DT_fn$remaining))
 
+# material
+# PEX
+DT_fn[str_detect(remaining, "^PEX"), material:="PEX"]
+DT_fn[material=="PEX",remaining := str_replace(remaining, "PEX", "")]
+# CPVC
+DT_fn[str_detect(remaining, "^CPVC"), material:="CPVC"]
+DT_fn[material=="CPVC",remaining := str_replace(remaining, "CPVC", "")]
+# CU
+DT_fn[str_detect(remaining, "^CU"), material:="CU"]
+DT_fn[material=="CU",remaining := str_replace(remaining, "CU", "")]
+
+unique(DT_fn[material=="CU",]$remaining)
+sort(unique(DT_fn$material))
+# [1] "CPVC" "CU"   "PEX" 
 
 str(DT_fn)
+
+names(DT_fn)
+setcolorder(DT_fn, 
+            c("path", "filename", "filedate", "nom_diam", "Test", "material","remaining")
+)
 
 write.csv(DT_fn, file="list_of_XLS.csv", row.names = FALSE)
 
