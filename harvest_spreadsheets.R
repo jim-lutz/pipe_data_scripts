@@ -42,6 +42,9 @@ DT_fn[nom_diam=="38", nom_diam:="3/8"]
 DT_fn[nom_diam=="12", nom_diam:="1/2"]
 DT_fn[nom_diam=="34", nom_diam:="3/4"]
 
+# T? test?
+DT_fn[str_detect(filename, "^[0-9][0-9]_"), Test:=str_match(filename, "_(T.*).XLS")[,2] ]
+
 
 
 str(DT_fn)
