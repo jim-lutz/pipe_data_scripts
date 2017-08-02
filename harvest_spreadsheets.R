@@ -21,8 +21,8 @@ xls_files[1]
 # try a system call on a test file in the working directory
 syscommand <- "/opt/libreoffice5.3/program/soffice.bin"
 sysargs <- c("--convert-to",
-             "csv",
-             "12_CPVCIN_2G_T1.XLS")
+             "csv")
+sysargs[3] <- paste0("'",xls_files[1],"'")
 
 system2(command = syscommand, args = sysargs)
 
