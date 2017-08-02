@@ -9,11 +9,11 @@ source("setup.R")
 source("setup_wd.R")
 
 # get a list of all the xls files in the wd_data subdirectories
-xls_files <- list.files(path = wd_data, pattern = ".+.xls", 
+xls_files <- list.files(path = wd_data, pattern = ".+.XLS$", 
                         full.names = TRUE, recursive = TRUE,
                         ignore.case = TRUE)
 str(xls_files)
-# 387 files
+# 329 files
 
 # split path and file name 
 path <- dirname(xls_files)
@@ -26,15 +26,11 @@ length(filename)
 
 DT_fn <- data.table(path,filename)
 
-write.csv(DT_fn, file="list_of_xls.csv", row.names = FALSE)
+# drop '/home/jiml/HotWaterResearch/projects/Pipe Test Data' from path names
+DT_fn[,path:= str_replace(path, "/home/jiml/HotWaterResearch/projects/Pipe Test Data", ".")]
 
+write.csv(DT_fn, file="list_of_XLS.csv", row.names = FALSE)
 
-# how many .XLS and how many .xls
-sum(str_detect(xls_files, ".XLS$"))
-sum(str_detect(xls_files, ".xls$"))
-sum(str_detect(xls_files, ".xlsx$"))
-# 328+1+58 = 387
-# it's either .XLS or .xls or .xlsx
 
 # libreoffice command and args for converting xls files to csv
 syscommand <- "/opt/libreoffice5.3/program/soffice.bin"
