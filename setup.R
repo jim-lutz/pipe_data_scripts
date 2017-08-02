@@ -41,6 +41,11 @@ sessionInfo()
 if(!require(tidyverse)){install.packages("tidyverse")}
 library(tidyverse)
 
+# work with stringr
+if(!require(stringr)){install.packages("stringr")}
+library(stringr)
+
+
 # work with data.tables
 #https://github.com/Rdatatable/data.table/wiki
 #https://www.datacamp.com/courses/data-analysis-the-data-table-way

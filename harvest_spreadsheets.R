@@ -15,34 +15,58 @@ xls_files <- list.files(path = wd_data, pattern = ".+.xls",
 str(xls_files)
 # 387 files
 
-# try converting 1st xls file
-xls_files[1]
+# how many .XLS and how many .xls
+sum(str_detect(xls_files, ".XLS"))
+sum(str_detect(xls_files, ".xls"))
+# 328+59 = 387
+# it's either .XLS or .xls
 
-# try a system call on a test file in the working directory
+# work with 1st xls file
+fn <- xls_files[1]
+
+# libreoffice command and args for converting xls files to csv
 syscommand <- "/opt/libreoffice5.3/program/soffice.bin"
 sysargs <- c("--convert-to",
-             "csv")
-sysargs[3] <- paste0("'",xls_files[1],"'")
+             "csv","")
 
-system2(command = syscommand, args = sysargs)
-
-# was able to convert it with unoconv
-# with some problem on first try.
-# $ unoconv --format csv 12_CPVCIN_2G_T1.XLS 
-# Error: Unable to connect or start own listener. Aborting.
-# $ unoconv --version
-# unoconv 0.7
-# Written by Dag Wieers <dag@wieers.com>
-# Homepage at http://dag.wieers.com/home-made/unoconv/
-#   
-#   platform posix/linux
-# python 3.5.2 (default, Nov 17 2016, 17:05:23) 
-# [GCC 5.4.0 20160609]
-# LibreOffice 5.1.6.2
-# $ unoconv --format csv 12_CPVCIN_2G_T1.XLS 
-# $ 
+# initialize a data.table and a counter
+DT_all<-data.table()
+n=0
 
 
+# a loop to process all the xls_files
+for( fn in xls_files) { 
+  n = n+1
+  cat(paste0(n," ",fn)) 
+  
+  # put the filename in single quotes
+  sysargs[3] <- paste0("'",fn,"'")
+  
+  # a system call to convert xls files to a csv file in the working directory
+  system2(command = syscommand, args = sysargs)
+  
+  # split path and file name 
+  path <- dirname(fn)
+  filename <- basename(fn)
+  
+  # make the csv file name, could be either XLS or xls
+  csvfn <- str_replace(filename, "(.XLS)|(.xls)", ".csv")
+  
+  # looks like the file structure is not as clean as hoped.
+  # read in the first 2 lines of the csv file as a data.table
+  DT_csv <- data.table(read.csv(csvfn, header = FALSE, nrows = 2 ))
+
+  # add path and filename as fields
+  DT_csv[,path:=path][,filename:=filename]
+  
+  DT_all <- rbind(DT_all, DT_csv)
+  
+  # remove the DT_csv file
+  if (file.exists(csvfn)) file.remove(csvfn)
+
+}
+
+  
 #======
 
 
