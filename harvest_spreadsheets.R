@@ -15,14 +15,26 @@ xls_files <- list.files(path = wd_data, pattern = ".+.xls",
 str(xls_files)
 # 387 files
 
-# how many .XLS and how many .xls
-sum(str_detect(xls_files, ".XLS"))
-sum(str_detect(xls_files, ".xls"))
-# 328+59 = 387
-# it's either .XLS or .xls
+# split path and file name 
+path <- dirname(xls_files)
+filename <- basename(xls_files)
 
-# work with 1st xls file
-fn <- xls_files[1]
+head (path)
+length(path)
+head(filename)
+length(filename)
+
+DT_fn <- data.table(path,filename)
+
+write.csv(DT_fn, file="list_of_xls.csv", row.names = FALSE)
+
+
+# how many .XLS and how many .xls
+sum(str_detect(xls_files, ".XLS$"))
+sum(str_detect(xls_files, ".xls$"))
+sum(str_detect(xls_files, ".xlsx$"))
+# 328+1+58 = 387
+# it's either .XLS or .xls or .xlsx
 
 # libreoffice command and args for converting xls files to csv
 syscommand <- "/opt/libreoffice5.3/program/soffice.bin"
