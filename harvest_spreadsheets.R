@@ -8,7 +8,7 @@ source("setup.R")
 # set the working directory names 
 source("setup_wd.R")
 
-# get a list of all the xls files in the wd_data subdirectories
+# get a list of all the XLS files in the wd_data subdirectories
 xls_files <- list.files(path = wd_data, pattern = ".+.XLS$", 
                         full.names = TRUE, recursive = TRUE)
 str(xls_files)
@@ -23,20 +23,34 @@ length(path)
 head(filename)
 length(filename)
 
-# get the file modification date
+# get the file info
 filedate <- file.mtime(xls_files)
+filesize <- file.size(xls_files)
 
-DT_fn <- data.table(path,filename,filedate)
+# make the data.table
+DT_fn <- data.table(filename,filedate,filesize,path)
 
 # drop '/home/jiml/HotWaterResearch/projects/Pipe Test Data' from path names
 DT_fn[,path:= str_replace(path, "/home/jiml/HotWaterResearch/projects/Pipe Test Data", ".")]
 
+# check for duplicate filenames
+DT_fn[duplicated(filename),list(filename)]
+# a dozen files with duplicate file names
+
+# make data.table of duplicate file names
+setkeyv(DT_fn,c("filename","path"))
+DT_dupfns <- DT_fn[duplicated(filename),list(filename)]
+DT_fn[DT_dupfns]
+# only the June 14 ones are really duplicates?
+write.csv(DT_fn[DT_dupfns], file="duplicates.csv", row.names = FALSE)
+
+
 # parse file names into fields
 # only parse filenames that begin with DD_
-
+# misses first 14 data files
 # drop .XLS
 DT_fn[str_detect(filename, "^[0-9][0-9]_"), remaining:=str_replace(filename, ".XLS", "")]
-DT_fn[is.na(remaining),list(filename)]
+DT_fn[is.na(remaining),list(filename)] 
 
 # nominal pipe diameter
 DT_fn[!is.na(remaining), nom_diam:=str_extract(remaining, "^(..)")] # get the nominal diameter
@@ -48,8 +62,16 @@ DT_fn[nom_diam=="12", nom_diam:="1/2"]
 DT_fn[nom_diam=="34", nom_diam:="3/4"]
 unique(DT_fn$nom_diam)
 # [1] "1/2" "3/4" NA    "1/4" "3/8"
+DT_fn[,list(n=length(filename)),by=nom_diam]
+#    nom_diam   n
+# 1:      1/2 167
+# 2:      1/4  15
+# 3:      3/4  94
+# 4:      3/8  36
+# 5:       NA  16
 
 # T? test?
+DT_fn[!is.na(remaining),]
 DT_fn[!is.na(remaining), Test:=str_match(remaining, "_(T.*)$")[,2] ] # get the Test
 DT_fn[!is.na(Test), remaining := str_replace(remaining, "_(T.*)$", "")] # remove the nominal diameter
 unique(DT_fn$Test)
@@ -114,55 +136,64 @@ str(DT_fn)
 
 names(DT_fn)
 setcolorder(DT_fn, 
-            c("path", "filename", "filedate", 
-              "nom_diam", "Test", "material","velocity", "GPM",
-              "remaining")
+            c("filename", "filedate", "filesize",
+              "material","nom_diam", "velocity", "GPM", "Test", 
+              "remaining","path" )
 )
 
 write.csv(DT_fn, file="list_of_XLS.csv", row.names = FALSE)
 
-# 
-# # libreoffice command and args for converting xls files to csv
-# syscommand <- "/opt/libreoffice5.3/program/soffice.bin"
-# sysargs <- c("--convert-to",
-#              "csv","")
-# 
-# # initialize a data.table and a counter
-# DT_all<-data.table()
-# n=0
-# 
-# 
-# # a loop to process all the xls_files
-# for( fn in xls_files) { 
-#   n = n+1
-#   cat(paste0(n," ",fn)) 
-#   
-#   # put the filename in single quotes
-#   sysargs[3] <- paste0("'",fn,"'")
-#   
-#   # a system call to convert xls files to a csv file in the working directory
-#   system2(command = syscommand, args = sysargs)
-#   
-#   # split path and file name 
-#   path <- dirname(fn)
-#   filename <- basename(fn)
-#   
-#   # make the csv file name, could be either XLS or xls
-#   csvfn <- str_replace(filename, "(.XLS)|(.xls)", ".csv")
-#   
-#   # looks like the file structure is not as clean as hoped.
-#   # read in the first 2 lines of the csv file as a data.table
-#   DT_csv <- data.table(read.csv(csvfn, header = FALSE, nrows = 2 ))
-# 
-#   # add path and filename as fields
-#   DT_csv[,path:=path][,filename:=filename]
-#   
-#   DT_all <- rbind(DT_all, DT_csv)
-#   
-#   # remove the DT_csv file
-#   if (file.exists(csvfn)) file.remove(csvfn)
-# 
-# }
+# get the first & 2nd header lines of all the .XLS files 
+# libreoffice command and args for converting xls files to csv
+syscommand <- "/opt/libreoffice5.3/program/soffice.bin"
+sysargs <- c("--convert-to",
+              "csv","")
+ 
+# initialize a data.table and a counter
+DT_headers<-data.table()
+n=0
+
+# a loop to process all the xls_files
+for( fn in xls_files) { 
+   n = n+1
+   
+   # for testing only
+   fn = xls_files[n]
+   
+   print(paste0(n," ",fn)) 
+   
+  # put the filename in single quotes
+  sysargs[3] <- paste0("'",fn,"'")
+ 
+  # a system call to convert xls files to a csv file in the working directory
+  system2(command = syscommand, args = sysargs)
+
+  # split path and file name
+  path <- dirname(fn)
+  filename <- basename(fn)
+
+  # make the csv file name
+  csvfn <- str_replace(filename, ".XLS", ".csv")
+
+  # looks like the file structure is not as clean as hoped.
+  # read in the first 2 lines of the csv file as a data.table
+  # 
+  
+  
+  
+  DT_csv <- data.table(read.csv(csvfn, header = FALSE, nrows = 2 ))
+
+  # add path and filename as fields
+  DT_csv[,path:=path][,filename:=filename]
+
+  DT_headers <- rbind(DT_headers, DT_csv)
+
+  # remove the DT_csv file
+  if (file.exists(csvfn)) file.remove(csvfn)
+
+}
+
+
 # 
 #   
 # #======
