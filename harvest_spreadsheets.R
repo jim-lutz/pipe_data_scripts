@@ -76,6 +76,16 @@ DT_fn[!is.na(remaining), Test:=str_match(remaining, "_(T.*)$")[,2] ] # get the T
 DT_fn[!is.na(Test), remaining := str_replace(remaining, "_(T.*)$", "")] # remove the nominal diameter
 unique(DT_fn$Test)
 # [1] "T1"   "T2"   NA     "TBAD" "T3"   "T1Z"  "T2Z" 
+DT_fn[,list(n=length(filename)),by=Test]
+#    Test   n
+# 1:   T1 168
+# 2:   T2 130
+# 3:   T3   1
+# 4:  T1Z   5
+# 5:  T2Z   5
+# 6:   NA  18
+# 7: TBAD   1
+
 
 # rest of stuff between nom_diam & Test
 sort(unique(DT_fn$remaining))
@@ -133,6 +143,9 @@ DT_fn[,list(n=length(filename)),by=GPM]
 # 11: 880   1
 
 str(DT_fn)
+
+write.csv(DT_fn[,list(n=length(filename)),by=remaining], file="list_of_remaining.csv", row.names = FALSE)
+
 
 names(DT_fn)
 setcolorder(DT_fn, 
