@@ -158,7 +158,7 @@ for( fn in xls_files) {
    n = n+1
    
    # for testing only
-   fn = xls_files[n]
+   # fn = xls_files[n]
    
    print(paste0(n," ",fn)) 
    
@@ -177,14 +177,15 @@ for( fn in xls_files) {
 
   # looks like the file structure is not as clean as hoped.
   # read in the first 2 lines of the csv file as a data.table
-  # 
+  # read first 2 lines as character strings
+  hdrs <- read.csv(csvfn, header = FALSE, nrows = 2, sep = "`" )
+  hdrs[] <- lapply(hdrs, as.character)
+  str(hdrs)
+  hdrs$V1[1]
+  hdrs$V1[2]
   
-  
-  
-  DT_csv <- data.table(read.csv(csvfn, header = FALSE, nrows = 2 ))
-
-  # add path and filename as fields
-  DT_csv[,path:=path][,filename:=filename]
+  # make a data.table with filename, hdr1, hdr2, and path as fields
+  DT_csv <- data.table(filename, hdr1=hdrs$V1[1],  hdr2=hdrs$V1[2], path=path)
 
   DT_headers <- rbind(DT_headers, DT_csv)
 
@@ -192,6 +193,14 @@ for( fn in xls_files) {
   if (file.exists(csvfn)) file.remove(csvfn)
 
 }
+
+# check for number of unique hdr1 & hdr2
+unique(DT_headers$hdr1)
+unique(DT_headers$hdr2)
+# they're all the same.
+
+# write the header file
+write.csv(DT_headers, file="headers.csv", row.names = FALSE)
 
 
 # 
